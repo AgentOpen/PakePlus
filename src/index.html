@@ -1,22 +1,366 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在进入网站</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .loader-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            width: 100%;
+        }
+        
+        .loader {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .loader-dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #4299e1;
+            border-radius: 50%;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+        
+        .dot1 { top: 0; left: 0; animation-delay: -0.3s; }
+        .dot2 { top: 0; right: 0; animation-delay: -0.15s; }
+        .dot3 { bottom: 0; right: 0; }
+        .dot4 { bottom: 0; left: 0; animation-delay: -0.45s; }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(0); }
+            50% { transform: scale(1); }
+        }
+        
+        .progress-container-wrapper {
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #2d3748;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4299e1, #38b2ac);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #4299e1, #38b2ac);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* 文案容器优化 */
+        .subtitle-container {
+            position: relative;
+            min-height: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0 20px;
+            line-height: 1.5;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+        }
+        
+        .subtitle.active {
+            opacity: 1;
+        }
+        
+        .status {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            min-height: 1.5rem;
+        }
+        
+        .enter-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 30px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .enter-btn:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
+        }
+        
+        .enter-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(66, 153, 225, 0.3);
+        }
+        
+        .enter-btn.loading {
+            background: #2c5282;
+            cursor: not-allowed;
+        }
+        
+        .enter-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .pulse {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .counter {
+            font-weight: bold;
+            color: #e0f7fa;
+        }
+        
+        /* 添加背景动画元素 */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(66, 153, 225, 0.05);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.1;
+            }
+            90% {
+                opacity: 0.05;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景动画元素 -->
+    <div class="background-animation" id="backgroundAnimation"></div>
+    
+    <div class="loader-container">
+        <div class="loader">
+            <div class="loader-dot dot1"></div>
+            <div class="loader-dot dot2"></div>
+            <div class="loader-dot dot3"></div>
+            <div class="loader-dot dot4"></div>
+        </div>
+        
+        <h1>正在进入客户端</h1>
+        
+        <!-- 文案容器 -->
+        <div class="subtitle-container">
+            <div class="subtitle active" id="subtitle1">请稍候，我们正在为您准备最佳体验</div>
+            <div class="subtitle" id="subtitle2">我们正在为您准备最佳体验...</div>
+            <div class="subtitle" id="subtitle3">即将为您呈现精彩内容...</div>
+        </div>
+        
+        <div class="progress-container-wrapper">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="status" id="statusText">
+            <span class="counter"><span class="pulse" id="countdown">3</span>秒</span>后自动进入...
+        </div>
+        
+        <button class="enter-btn" id="enterBtn">立即进入</button>
+    </div>
 
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-
-            <form class="row" id="greet-form">
-                <input id="greet-input" placeholder="Enter a name..." />
-                <button type="submit">Greet</button>
-            </form>
-            <p id="greet-msg"></p>
-        </main>
-    </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('statusText');
+            const enterBtn = document.getElementById('enterBtn');
+            const countdownEl = document.getElementById('countdown');
+            const bgAnimation = document.getElementById('backgroundAnimation');
+            
+            // 文案元素
+            const subtitles = document.querySelectorAll('.subtitle');
+            let currentSubtitleIndex = 0;
+            
+            // 创建背景动画
+            function createBackgroundAnimation() {
+                const bubbleCount = 15;
+                for (let i = 0; i < bubbleCount; i++) {
+                    const bubble = document.createElement('div');
+                    bubble.classList.add('bubble');
+                    
+                    // 随机大小和位置
+                    const size = Math.random() * 150 + 50;
+                    bubble.style.width = `${size}px`;
+                    bubble.style.height = `${size}px`;
+                    bubble.style.left = `${Math.random() * 100}%`;
+                    
+                    // 随机动画延迟
+                    bubble.style.animationDelay = `${Math.random() * 10}s`;
+                    bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                    
+                    bgAnimation.appendChild(bubble);
+                }
+            }
+            
+            // 更新文案
+            function updateSubtitle() {
+                // 移除当前活动的文案
+                subtitles.forEach(subtitle => {
+                    subtitle.classList.remove('active');
+                });
+                
+                // 更新索引
+                currentSubtitleIndex = (currentSubtitleIndex + 1) % subtitles.length;
+                
+                // 添加新活动的文案
+                subtitles[currentSubtitleIndex].classList.add('active');
+            }
+            
+            let countdown = 3;
+            let progress = 0;
+            
+            // 更新倒计时和进度
+            function updateProgress() {
+                // 更新倒计时
+                countdown--;
+                countdownEl.textContent = countdown;
+                
+                // 更新进度条（3秒内从0到100%）
+                progress = 100 - (countdown / 3 * 100);
+                progressBar.style.width = progress + '%';
+                
+                if (countdown > 0) {
+                    // 每1秒更新一次
+                    setTimeout(updateProgress, 600);
+                } else {
+                    // 倒计时结束，跳转到首页
+                    redirectToHome();
+                }
+            }
+            
+            // 跳转到首页
+            function redirectToHome() {
+                // 更新状态文本
+                statusText.innerHTML = "准备就绪，正在跳转...";
+                progressBar.style.width = '100%';
+                
+                // 禁用按钮
+                enterBtn.disabled = true;
+                enterBtn.classList.add('loading');
+                enterBtn.textContent = "正在进入...";
+                
+                // 模拟短暂延迟后跳转
+                setTimeout(() => {
+                    window.location.href = 'https://www.you-agi.com/';
+                }, 800);
+            }
+            
+            // 立即进入按钮事件
+            enterBtn.addEventListener('click', function() {
+                // 防止多次点击
+                if (enterBtn.disabled) return;
+                
+                // 添加点击效果
+                enterBtn.disabled = true;
+                enterBtn.classList.add('loading');
+                enterBtn.textContent = "正在进入...";
+                
+                // 立即跳转
+                redirectToHome();
+            });
+            
+            // 创建背景动画
+            createBackgroundAnimation();
+            
+            // 启动轮播（每3秒切换一次）
+            setInterval(updateSubtitle, 1200);
+            
+            // 启动进度更新（1秒后开始）
+            setTimeout(updateProgress, 1000);
+        });
+    </script>
+</body>
 </html>
