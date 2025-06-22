@@ -1,5 +1,5 @@
 console.log(
-    '%cbuild from AiChat： https://www.aichatgpt.com.cn',
+    '%cbuild from AiChat： https://www.aichatgpt.net',
     'color:orangered;font-weight:bolder'
 )
 
